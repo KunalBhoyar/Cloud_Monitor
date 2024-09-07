@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Monitoring Dashboard</title>
+    <!-- Bootstrap for styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .plotly-graph-div {
+            margin: auto;
+            width: 100%;
+            padding: 20px;
+        }
+        .metric-card {
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .metric-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .metric-value {
+            font-size: 2.5em;
+        }
+        .alert-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">System Monitoring Dashboard</h1>
+        
+        <div class="row">
+            <!-- CPU Utilization -->
+            <div class="col-md-6">
+                <div class="metric-card">
+                    <div class="metric-title">CPU Utilization</div>
+                    <div id="cpu-gauge"></div>
+                </div>
+            </div>
+            
+            <!-- Memory Utilization -->
+            <div class="col-md-6">
+                <div class="metric-card">
+                    <div class="metric-title">Memory Utilization</div>
+                    <div id="mem-gauge"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Disk Utilization -->
+            <div class="col-md-6">
+                <div class="metric-card">
+                    <div class="metric-title">Disk Utilization</div>
+                    <div class="metric-value">{{ disk_metric }}%</div>
+                </div>
+            </div>
+            
+            <!-- Network I/O -->
+            <div class="col-md-6">
+                <div class="metric-card">
+                    <div class="metric-title">Network I/O</div>
+                    <div class="metric-value">Sent: {{ net_sent }} MB, Received: {{ net_recv }} MB</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- System Uptime -->
+            <div class="col-md-6">
+                <div class="metric-card">
+                    <div class="metric-title">System Uptime</div>
+                    <div class="metric-value">{{ uptime }}</div>
+                </div>
+            </div>
+            
+            <!-- Process Count -->
+            <div class="col-md-6">
+                <div class="metric-card">
+                    <div class="metric-title">Running Processes</div>
+                    <div class="metric-value">{{ process_count }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alert for high usage -->
+        {% if message %}
+        <div class="alert-container">
+            <div class="alert alert-danger text-center">{{ message }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // CPU Gauge
+        var cpuGauge = {
+            type: "indicator",
+            mode: "gauge+number",
+            value: {{ cpu_metric }},
+            gauge: {
+                axis: { range: [null, 100] },
+                bar: { color: "#1f77b4" },
+                bgcolor: "white",
+                borderwidth: 2,
+                bordercolor: "#ccc",
+                steps: [
+                    { range: [0, 50], color: "#d9f0a3" },
+                    { range: [50, 85], color: "#ffeb84" },
+                    { range: [85, 100], color: "#ff5f5f" }
+                ],
+                threshold: {
+                    line: { color: "red", width: 4 },
+                    thickness: 0.75,
+                    value: {{ cpu_metric }}
+                }
+            }
+        };
+
+        // Memory Gauge
+        var memGauge = {
+            type: "indicator",
+            mode: "gauge+number",
+            value: {{ mem_metric }},
+            gauge: {
+                axis: { range: [null, 100] },
+                bar: { color: "#1f77b4" },
+                bgcolor: "white",
+                borderwidth: 2,
+                bordercolor: "#ccc",
+                steps: [
+                    { range: [0, 50], color: "#d9f0a3" },
+                    { range: [50, 85], color: "#ffeb84" },
+                    { range: [85, 100], color: "#ff5f5f" }
+                ],
+                threshold: {
+                    line: { color: "red", width: 4 },
+                    thickness: 0.75,
+                    value: {{ mem_metric }}
+                }
+            }
+        };
+
+        // Plotly rendering
+        Plotly.newPlot('cpu-gauge', [cpuGauge], { title: "CPU Utilization" });
+        Plotly.newPlot('mem-gauge', [memGauge], { title: "Memory Utilization" });
+    </script>
+</body>
+</html>
